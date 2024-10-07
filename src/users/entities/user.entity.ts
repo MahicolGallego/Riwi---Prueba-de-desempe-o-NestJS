@@ -44,7 +44,7 @@ export class User {
   password: string;
 
   @ApiProperty()
-  @Expose()
+  @Exclude()
   @Column({
     type: 'varchar',
     unique: true,
