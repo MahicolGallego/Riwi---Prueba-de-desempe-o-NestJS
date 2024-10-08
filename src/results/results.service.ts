@@ -1,26 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateResultDto } from './dto/create-result.dto';
-import { UpdateResultDto } from './dto/update-result.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Result } from './entities/result.entity';
+import { MatchesService } from 'src/matches/matches.service';
 
 @Injectable()
 export class ResultsService {
-  create(createResultDto: CreateResultDto) {
-    return 'This action adds a new result';
-  }
+  constructor(
+    @InjectRepository(Result)
+    private resultsRepository: Repository<Result>,
+    private readonly matchesService: MatchesService,
+  ) {}
 
-  findAll() {
-    return `This action returns all results`;
-  }
+  async create(createResultDto: CreateResultDto): Promise<Result> {
+    const match = await this.matchesService.findOne(createResultDto.match_id);
 
-  findOne(id: number) {
-    return `This action returns a #${id} result`;
-  }
+    if (
+      match.player_1_id !== createResultDto.winner_player_id &&
+      match.player_2_id !== createResultDto.winner_player_id
+    ) {
+      throw new NotFoundException(
+        'The user who wants to be included as a winner is not participating in the match',
+      );
+    }
 
-  update(id: number, updateResultDto: UpdateResultDto) {
-    return `This action updates a #${id} result`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} result`;
+    const result = this.resultsRepository.create(createResultDto);
+    return await this.resultsRepository.save(result);
   }
 }

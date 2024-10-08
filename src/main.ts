@@ -35,6 +35,7 @@ async function bootstrap() {
       type: 'apiKey',
       in: 'header',
     })
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/library/api/v1/docs', app, document);
