@@ -5,9 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Result } from './entities/result.entity';
 import { MatchesModule } from 'src/matches/matches.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Result]), MatchesModule, AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Result]),
+    MatchesModule,
+    AuthModule,
+    UsersModule,
+  ],
   controllers: [ResultsController],
   providers: [ResultsService],
 })
