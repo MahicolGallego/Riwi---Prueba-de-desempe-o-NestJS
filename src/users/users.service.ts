@@ -45,4 +45,9 @@ export class UsersService {
   async findByEmail(email: string) {
     return await this.userRepository.findOne({ where: { email } });
   }
+
+  async findByApiKey(apiKey: string): Promise<User | void> {
+    // Query the user repository for a user with the given API key
+    return await this.userRepository.findOne({ where: { api_key: apiKey } });
+  }
 }

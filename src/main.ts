@@ -17,12 +17,12 @@ async function bootstrap() {
     }),
   );
 
-  //enable cors to resolve conflicts with Cross-Origin
-  app.enableCors();
-
   //enable serializacion to active class-transformer funtionality(data control for response)
   const reflector = app.get(Reflector);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
+
+  //enable cors to resolve conflicts with Cross-Origin
+  app.enableCors();
 
   //Swagger for documentation of API
   const config = new DocumentBuilder()

@@ -6,6 +6,7 @@ import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -41,6 +42,9 @@ export class Match {
   @Exclude()
   @CreateDateColumn()
   createdAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: number;
 
   @ManyToOne(() => Tournament, (tournament) => tournament.matches)
   @JoinColumn({ name: 'tournament_id' })

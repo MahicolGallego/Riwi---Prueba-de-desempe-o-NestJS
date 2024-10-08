@@ -8,6 +8,7 @@ import { Tournament } from 'src/tournaments/entities/tournament.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToMany,
   OneToMany,
@@ -47,7 +48,6 @@ export class User {
   @Exclude()
   @Column({
     type: 'varchar',
-    unique: true,
     length: 40,
     nullable: false,
     default: 'Not applicable',
@@ -58,6 +58,9 @@ export class User {
   @Exclude()
   @CreateDateColumn()
   createdAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: number;
 
   // relationship
   @OneToMany(() => Result, (result) => result.winner_player)

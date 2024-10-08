@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt/ jwt.strategy';
 import { LocalStrategy } from './strategies/jwt/local.strategy';
 import { JwtAuthGuard } from './guards/jwt/jwt-auth.guard';
+import { ApiKeyGuard } from './guards/api-key/api-key.guard';
 
 @Module({
   imports: [
@@ -25,7 +26,13 @@ import { JwtAuthGuard } from './guards/jwt/jwt-auth.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtAuthGuard, JwtStrategy],
-  exports: [AuthService, JwtAuthGuard, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtAuthGuard,
+    JwtStrategy,
+    ApiKeyGuard,
+  ],
+  exports: [AuthService, JwtAuthGuard, JwtStrategy, ApiKeyGuard],
 })
 export class AuthModule {}

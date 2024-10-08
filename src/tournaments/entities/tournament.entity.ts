@@ -6,6 +6,7 @@ import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
@@ -24,7 +25,7 @@ export class Tournament {
 
   @ApiProperty()
   @Expose()
-  @Column({ type: 'varchar', length: 50, nullable: false })
+  @Column({ type: 'varchar', unique: true, length: 50, nullable: false })
   name: string;
 
   @ApiProperty()
@@ -32,15 +33,14 @@ export class Tournament {
   @Column({ type: 'int', nullable: false })
   points_win_match: number;
 
-  @ApiProperty()
-  @Expose()
-  @Column({ type: 'int', nullable: false })
-  points_lose_match: number;
-
   // Exclude properties from serialization. It will not be included in the response when converting the entity to JSON.
   @Exclude()
   @CreateDateColumn()
   createdAt: Date;
+
+  @Exclude()
+  @DeleteDateColumn()
+  deletedAt: number;
 
   @OneToMany(() => Ranking, (ranking) => ranking.tournament)
   rankings: Ranking[];

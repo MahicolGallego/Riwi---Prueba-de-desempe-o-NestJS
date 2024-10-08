@@ -9,7 +9,7 @@ import { Request } from 'express';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('/register')
+  @Post('register')
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.authService.registerUser(createUserDto);
   }

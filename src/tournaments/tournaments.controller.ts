@@ -1,34 +1,58 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { TournamentsService } from './tournaments.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt/jwt-auth.guard';
+import { ApiKeyGuard } from 'src/auth/guards/api-key/api-key.guard';
+import { Tournament } from './entities/tournament.entity';
 
+@ApiTags('tournaments')
+@UseGuards(JwtAuthGuard)
 @Controller('tournaments')
 export class TournamentsController {
   constructor(private readonly tournamentsService: TournamentsService) {}
 
+  @UseGuards(ApiKeyGuard)
   @Post()
-  create(@Body() createTournamentDto: CreateTournamentDto) {
-    return this.tournamentsService.create(createTournamentDto);
+  async create(
+    @Body() createTournamentDto: CreateTournamentDto,
+  ): Promise<Tournament> {
+    return await this.tournamentsService.create(createTournamentDto);
   }
 
   @Get()
-  findAll() {
-    return this.tournamentsService.findAll();
+  async findAll(): Promise<Tournament[]> {
+    return await this.tournamentsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tournamentsService.findOne(+id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Tournament> {
+    return await this.tournamentsService.findOne(id); // id is a string (UUID)
   }
 
+  @UseGuards(ApiKeyGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTournamentDto: UpdateTournamentDto) {
-    return this.tournamentsService.update(+id, updateTournamentDto);
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateTournamentDto: UpdateTournamentDto,
+  ): Promise<Tournament> {
+    return await this.tournamentsService.update(id, updateTournamentDto);
   }
 
+  @UseGuards(ApiKeyGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tournamentsService.remove(+id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.tournamentsService.softRemove(id);
   }
 }
