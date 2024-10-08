@@ -15,5 +15,6 @@ import { User } from 'src/users/entities/user.entity';
   ],
   controllers: [TournamentsController],
   providers: [TournamentsService],
+  exports: [TournamentsService], // Export TournamentsService for use in other modules that import this module
 })
 export class TournamentsModule {}

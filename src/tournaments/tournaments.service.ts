@@ -30,14 +30,14 @@ export class TournamentsService {
 
   async findAll(): Promise<Tournament[]> {
     return await this.tournamentRepository.find({
-      relations: ['matches', 'rankings'],
+      relations: ['matches', 'rankings', 'players'],
     });
   }
 
   async findOne(id: string): Promise<Tournament> {
     return await this.tournamentRepository.findOneOrFail({
       where: { id },
-      relations: ['matches', 'rankings'],
+      relations: ['matches', 'rankings', 'players'],
     });
   }
 

@@ -1,34 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Param, ParseUUIDPipe } from '@nestjs/common';
 import { MatchesService } from './matches.service';
-import { CreateMatchDto } from './dto/create-match.dto';
-import { UpdateMatchDto } from './dto/update-match.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('matches')
 @Controller('matches')
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
-  @Post()
-  create(@Body() createMatchDto: CreateMatchDto) {
-    return this.matchesService.create(createMatchDto);
+  @Post(':tournament_id')
+  async create(@Param('tournament_id', ParseUUIDPipe) tournament_id: string) {
+    return await this.matchesService.createMatches(tournament_id);
   }
 
-  @Get()
-  findAll() {
-    return this.matchesService.findAll();
+  @Get(':tournament_id/all')
+  async findAll(@Param('tournament_id', ParseUUIDPipe) tournament_id: string) {
+    return await this.matchesService.findAll(tournament_id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.matchesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMatchDto: UpdateMatchDto) {
-    return this.matchesService.update(+id, updateMatchDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.matchesService.remove(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.matchesService.findOne(id);
   }
 }
