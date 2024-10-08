@@ -1,0 +1,35 @@
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy } from 'passport-local';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import validator from 'validator';
+import { User } from 'src/users/entities/user.entity';
+import { AuthService } from 'src/auth/auth.service';
+
+@Injectable()
+export class LocalStrategy extends PassportStrategy(Strategy, 'localStrategy') {
+  constructor(private readonly authService: AuthService) {
+    super({
+      usernameField: 'email',
+      passwordField: 'password',
+    });
+  }
+
+  async validate(email: string, password: string): Promise<User> {
+    try {
+      //validate email
+
+      if (!validator.isEmail(email.toLowerCase().trim()) || !password) {
+        throw new UnauthorizedException({
+          message: 'Invalid credential',
+        });
+      }
+      const user: User = await this.authService.validateUser({
+        email: email.toLowerCase().trim(),
+        password,
+      });
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+}
