@@ -16,6 +16,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt/jwt-auth.guard';
 import { ApiKeyGuard } from 'src/auth/guards/api-key/api-key.guard';
 import { Tournament } from './entities/tournament.entity';
+import { AddPlayersToTournamentDto } from './dto/add-players-to-tournament.dto';
 
 @ApiTags('tournaments')
 @UseGuards(JwtAuthGuard)
@@ -54,5 +55,17 @@ export class TournamentsController {
   @Delete(':id')
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     return await this.tournamentsService.softRemove(id);
+  }
+
+  @UseGuards(ApiKeyGuard)
+  @Post(':id/players')
+  async addPlayers(
+    @Param('id', ParseUUIDPipe) tournamentId: string,
+    @Body() addPlayersDto: AddPlayersToTournamentDto,
+  ): Promise<Tournament> {
+    return await this.tournamentsService.addPlayerToTournament(
+      tournamentId,
+      addPlayersDto,
+    );
   }
 }
