@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Match } from './entities/match.entity';
 import { Repository } from 'typeorm';
 import { TournamentsService } from 'src/tournaments/tournaments.service';
+import { User } from 'src/users/entities/user.entity';
+import { ErrorManager } from 'src/common/filters/error-manage.filter';
 
 @Injectable()
 export class MatchesService {
@@ -25,28 +27,86 @@ export class MatchesService {
       );
     }
 
-    const quantityPlayers = tournament.players;
+    const haveMatches = tournament.matches;
 
-    if (quantityPlayers.length === 0) {
+    if (haveMatches.length > 0) {
+      throw new ErrorManager({
+        type: 'CONFLICT',
+        message: 'The tournament already has matches',
+      });
+    }
+
+    const listPlayers = tournament.players;
+
+    if (listPlayers.length === 0) {
       throw new NotFoundException(
         `Tournament with id ${tournament_id} does not have players`,
       );
     }
 
-    if (quantityPlayers.length % 2 !== 0) {
+    if (listPlayers.length === 1) {
       throw new ConflictException(
-        'The number of players must be even, add or remove players',
+        'The number of players must be greater than one',
       );
     }
 
-    for (let i = 0; i < quantityPlayers.length; i += 2) {
-      const createMatchDto = new CreateMatchDto();
-      createMatchDto.tournament_id = tournament_id;
-      createMatchDto.player_1_id = quantityPlayers[i].id; // Asumiendo que el jugador tiene un campo 'id'
-      createMatchDto.player_2_id = quantityPlayers[i + 1].id;
+    //randomly generate the matches between all the competitors, 2 times
+    //with each competitor, once where it is player 1 and another where it is player 2
 
-      await this.matchesRepository.save(createMatchDto);
+    const shuffleListPlayers = this.shuffleTheListPlayers(listPlayers);
+
+    const listMatches: CreateMatchDto[] = [];
+    let newMatch: CreateMatchDto;
+
+    for (let i = 0; i < shuffleListPlayers.length; i++) {
+      for (let j = 0; j < shuffleListPlayers.length; j++) {
+        if (shuffleListPlayers[i].id !== shuffleListPlayers[j].id) {
+          // filtrar para saber si el player ya tiene sus 2 juegos con cada jugador
+          let quantityplayersMatches: CreateMatchDto[] = [];
+
+          if (listMatches.length > 0) {
+            quantityplayersMatches = listMatches.filter(
+              (match) =>
+                (match.player_1_id === shuffleListPlayers[i].id &&
+                  match.player_2_id === shuffleListPlayers[j].id) ||
+                (match.player_1_id === shuffleListPlayers[j].id &&
+                  match.player_2_id === shuffleListPlayers[i].id),
+            );
+          }
+
+          if (quantityplayersMatches.length < 2) {
+            const createMatchDto: CreateMatchDto = new CreateMatchDto();
+
+            if (quantityplayersMatches.length === 0) {
+              createMatchDto.player_1_id = shuffleListPlayers[i].id;
+              createMatchDto.player_2_id = shuffleListPlayers[j].id;
+            }
+
+            if (quantityplayersMatches.length === 1) {
+              if (
+                quantityplayersMatches[0].player_1_id ===
+                shuffleListPlayers[i].id
+              ) {
+                createMatchDto.player_1_id = shuffleListPlayers[j].id;
+                createMatchDto.player_2_id = shuffleListPlayers[i].id;
+              } else {
+                createMatchDto.player_1_id = shuffleListPlayers[i].id;
+                createMatchDto.player_2_id = shuffleListPlayers[j].id;
+              }
+            }
+
+            newMatch = this.matchesRepository.create({
+              ...createMatchDto,
+              tournament,
+            });
+
+            listMatches.push(newMatch);
+          }
+        }
+      }
     }
+
+    return listMatches;
   }
 
   async findAll(tournament_id: string) {
@@ -68,5 +128,20 @@ export class MatchesService {
       throw new NotFoundException(`Match with id ${id} not found`);
     }
     return match;
+  }
+
+  shuffleTheListPlayers(listPlayers: User[]) {
+    const shuffleListPlayers = new Array(...listPlayers);
+    for (let i = 0; i < shuffleListPlayers.length; i++) {
+      // Pick a random index from 0 to max length (inclusive)
+      const j = Math.floor(Math.random() * shuffleListPlayers.length);
+
+      // using destructuration for swap elements
+      [shuffleListPlayers[i], shuffleListPlayers[j]] = [
+        shuffleListPlayers[j],
+        shuffleListPlayers[i],
+      ];
+    }
+    return shuffleListPlayers;
   }
 }
