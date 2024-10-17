@@ -34,10 +34,22 @@ export class ApiKeyGuard implements CanActivate {
         });
       }
 
+      // extract the user provided for Jwt authentication from request
+      const { user } = request;
+
+      // check if the user found searching for the provided user api key
+      // is the same user that performed the request
+      if (foundUser.id !== user.sub) {
+        throw new ErrorManager({
+          type: 'UNAUTHORIZED',
+          message: `The provided Api Key does not belong to the requesting user`,
+        });
+      }
+
       if (foundUser.role !== Roles.admin)
         throw new ErrorManager({
           type: 'UNAUTHORIZED',
-          message: `${foundUser.role} does not have sufficient permissions for performing this action}`,
+          message: `${foundUser.role} does not have sufficient permissions for performing this action`,
         });
 
       return true;
