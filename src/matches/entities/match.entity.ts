@@ -43,6 +43,7 @@ export class Match {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Exclude()
   @DeleteDateColumn()
   deletedAt: number;
 
