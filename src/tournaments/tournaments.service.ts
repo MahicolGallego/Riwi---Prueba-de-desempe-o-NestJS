@@ -7,6 +7,7 @@ import { In, Repository } from 'typeorm';
 import { ErrorManager } from 'src/common/filters/error-manage.filter';
 import { User } from 'src/users/entities/user.entity';
 import { AddPlayersToTournamentDto } from './dto/add-players-to-tournament.dto';
+import { RankingsService } from 'src/rankings/rankings.service';
 
 @Injectable()
 export class TournamentsService {
@@ -15,6 +16,7 @@ export class TournamentsService {
     private readonly tournamentRepository: Repository<Tournament>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly rankingsServices: RankingsService,
   ) {}
 
   async create(createTournamentDto: CreateTournamentDto): Promise<Tournament> {
@@ -77,6 +79,46 @@ export class TournamentsService {
 
     tournament.players = [...tournament.players, ...newPlayers]; // add new players
 
-    return await this.tournamentRepository.save(tournament); // update tournament with new players
+    const registeredNewPlayersToTournament =
+      await this.tournamentRepository.save(tournament);
+
+    // Create rankings for new players in the tournament
+
+    tournament.players.map(async (player) => {
+      return await this.rankingsServices.create(tournament, player);
+    });
+
+    return registeredNewPlayersToTournament; // update tournament with new players
+  }
+
+  async verifyRegisteredPlayers(tournament_id: string, player_id: string) {
+    try {
+      const tournament = await this.tournamentRepository.findOne({
+        where: { id: tournament_id },
+        relations: ['players'],
+      });
+
+      if (!tournament) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: `Tournament with id ${tournament_id} not found`,
+        });
+      }
+
+      const player = tournament.players.find((p) => p.id === player_id);
+      if (!player) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: `Player with id ${player_id} not found in tournament ${tournament_id}`,
+        });
+      }
+
+      return;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(error.message);
+      }
+      throw ErrorManager.createSignatureError('an unexpected error occurred');
+    }
   }
 }

@@ -29,6 +29,9 @@ import { AuthModule } from './auth/auth.module';
         ssl: {
           rejectUnauthorized: false, //Allow non ssl connections(development only)
         },
+        extra: {
+          options: '-c timezone=America/Bogota',
+        },
       }),
     }),
     UsersModule,

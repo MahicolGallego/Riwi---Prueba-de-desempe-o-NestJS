@@ -24,27 +24,26 @@ export class Ranking {
 
   @PrimaryColumn({ type: 'uuid', nullable: false })
   @Expose()
-  @Column({ type: 'uuid', nullable: false })
   player_id: string;
 
   @ApiProperty()
   @Expose()
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   wins: number;
 
   @ApiProperty()
   @Expose()
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   losses: number;
 
   @ApiProperty()
   @Expose()
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   poinst: number;
 
   @ApiProperty()
   @Expose()
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   ranking: number;
 
   // Exclude properties from serialization. It will not be included in the response when converting the entity to JSON.
@@ -60,6 +59,6 @@ export class Ranking {
   tournament: Tournament;
 
   @ManyToOne(() => User, (user) => user.rankings)
-  @JoinColumn({ name: 'player_1' })
+  @JoinColumn({ name: 'player_id' })
   player: User;
 }
