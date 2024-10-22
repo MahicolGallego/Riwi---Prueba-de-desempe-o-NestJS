@@ -44,7 +44,7 @@ export class ResultsController {
     description:
       'Forbidden. You do not have permission to perform this action.',
   })
-  async create(@Body() createResultDto: CreateResultDto): Promise<Result> {
+  async create(@Body() createResultDto: CreateResultDto) {
     return await this.resultsService.create(createResultDto);
   }
 }

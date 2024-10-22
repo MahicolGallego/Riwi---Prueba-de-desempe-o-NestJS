@@ -23,7 +23,7 @@ export class MatchesController {
     return await this.matchesService.createMatches(tournament_id);
   }
 
-  @Get(':tournament_id/all')
+  @Get(':tournament_id')
   async findAll(@Param('tournament_id', ParseUUIDPipe) tournament_id: string) {
     return await this.matchesService.findAll(tournament_id);
   }

@@ -39,7 +39,7 @@ export class Ranking {
   @ApiProperty()
   @Expose()
   @Column({ type: 'int', nullable: false, default: 0 })
-  poinst: number;
+  points: number;
 
   @ApiProperty()
   @Expose()

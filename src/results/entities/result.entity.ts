@@ -37,14 +37,17 @@ export class Result {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Exclude()
   @DeleteDateColumn()
   deletedAt: number;
 
+  @Exclude()
   @ManyToOne(() => User, (user) => user.won_games)
   @JoinColumn({ name: 'winner_player_id' })
   winner_player: User;
 
-  @OneToOne(() => Match, (match) => match.results)
+  @Exclude()
+  @OneToOne(() => Match, (match) => match.result)
   @JoinColumn({ name: 'match_id' })
   match: Match;
 }

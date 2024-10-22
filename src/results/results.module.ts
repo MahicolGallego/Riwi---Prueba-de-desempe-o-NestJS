@@ -6,6 +6,7 @@ import { Result } from './entities/result.entity';
 import { MatchesModule } from 'src/matches/matches.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { UsersModule } from 'src/users/users.module';
+import { RankingsModule } from 'src/rankings/rankings.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersModule } from 'src/users/users.module';
     MatchesModule,
     AuthModule,
     UsersModule,
+    RankingsModule,
   ],
   controllers: [ResultsController],
   providers: [ResultsService],

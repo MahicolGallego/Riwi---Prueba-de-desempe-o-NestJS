@@ -60,5 +60,5 @@ export class Match {
   player2: User;
 
   @OneToOne(() => Result, (result) => result.match)
-  results: Result;
+  result: Result;
 }

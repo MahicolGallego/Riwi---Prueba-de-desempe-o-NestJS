@@ -143,7 +143,10 @@ export class MatchesService {
   }
 
   async findOne(id: string) {
-    const match = await this.matchesRepository.findOne({ where: { id } });
+    const match = await this.matchesRepository.findOne({
+      where: { id },
+      relations: ['tournament.rankings', 'result', 'player1', 'player2'],
+    });
     if (!match) {
       throw new NotFoundException(`Match with id ${id} not found`);
     }
