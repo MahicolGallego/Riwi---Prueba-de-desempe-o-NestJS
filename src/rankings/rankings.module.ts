@@ -4,11 +4,13 @@ import { RankingsController } from './rankings.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ranking } from './entities/ranking.entity';
 import { TournamentsModule } from 'src/tournaments/tournaments.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Ranking]),
     forwardRef(() => TournamentsModule),
+    AuthModule,
   ],
   controllers: [RankingsController],
   providers: [RankingsService],

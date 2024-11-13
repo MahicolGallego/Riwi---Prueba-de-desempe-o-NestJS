@@ -38,7 +38,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/library/api/v1/docs', app, document);
+  SwaggerModule.setup('/esports-arena/api/v1/docs', app, document);
 
   await app.listen(3000);
 }

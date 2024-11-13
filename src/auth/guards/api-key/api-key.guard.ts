@@ -9,7 +9,6 @@ export class ApiKeyGuard implements CanActivate {
   constructor(private readonly usersService: UsersService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
-      console.log('findByApiKey', this.usersService);
       // Get the request object from the current execution context
       const request = context.switchToHttp().getRequest();
 

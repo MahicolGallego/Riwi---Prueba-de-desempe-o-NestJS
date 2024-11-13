@@ -11,10 +11,12 @@ import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOperation,
+  ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 @UseGuards(JwtAuthGuard)
+@ApiTags('results')
 @Controller('results')
 export class ResultsController {
   constructor(private readonly resultsService: ResultsService) {}

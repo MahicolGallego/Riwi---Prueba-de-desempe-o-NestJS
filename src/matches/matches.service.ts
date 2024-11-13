@@ -114,10 +114,7 @@ export class MatchesService {
       const savedMatches = await Promise.all(
         listMatches.map(async (match) => {
           const registeredNewMatch = await this.matchesRepository.save(match);
-          // retirar la propiedad torneo con todos sus datos para convertir
-          // y retornar solo los datos de match
-          const { tournament, ...matchData } = registeredNewMatch;
-          return plainToClass(Match, matchData);
+          return plainToClass(Match, registeredNewMatch);
         }),
       );
 

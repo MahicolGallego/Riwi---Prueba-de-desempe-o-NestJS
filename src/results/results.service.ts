@@ -26,7 +26,7 @@ export class ResultsService {
         message: 'The match has already a assigned result',
       });
     }
-    console.log(match);
+
     if (
       match.player_1_id !== createResultDto.winner_player_id &&
       match.player_2_id !== createResultDto.winner_player_id

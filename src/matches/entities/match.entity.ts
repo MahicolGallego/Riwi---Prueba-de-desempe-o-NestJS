@@ -47,14 +47,17 @@ export class Match {
   @DeleteDateColumn()
   deletedAt: number;
 
+  @Exclude()
   @ManyToOne(() => Tournament, (tournament) => tournament.matches)
   @JoinColumn({ name: 'tournament_id' })
   tournament: Tournament;
 
+  @Exclude()
   @ManyToOne(() => User, (user) => user.matchesAsPlayer1)
   @JoinColumn({ name: 'player_1_id' })
   player1: User;
 
+  @Exclude()
   @ManyToOne(() => User, (user) => user.matchesAsPlayer2)
   @JoinColumn({ name: 'player_2_id' })
   player2: User;

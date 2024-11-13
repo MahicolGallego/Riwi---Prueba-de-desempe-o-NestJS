@@ -1,12 +1,15 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ranking } from './entities/ranking.entity';
-import { Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { TournamentsService } from 'src/tournaments/tournaments.service';
 import { Tournament } from 'src/tournaments/entities/tournament.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Match } from 'src/matches/entities/match.entity';
 import { Result } from 'src/results/entities/result.entity';
+import { IRankingfilter } from 'src/common/interfaces/IRankingFilter';
+import { UUID } from 'crypto';
+import { ErrorManager } from 'src/common/filters/error-manage.filter';
 
 @Injectable()
 export class RankingsService {
@@ -37,18 +40,6 @@ export class RankingsService {
     return null;
   }
 
-  findAll() {
-    return `This action returns all rankings`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} ranking`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} ranking`;
-  }
-
   async updateRankings(match: Match, result: Result) {
     const { tournament, player1, player2 } = match;
     const rankings = tournament.rankings;
@@ -76,7 +67,7 @@ export class RankingsService {
   }
   assignedRankingPosition(listRankings: Ranking[]) {
     listRankings.sort((a, b) => b.points - a.points);
-    console.log(listRankings);
+
     listRankings.forEach((ranking, index) => {
       ranking.ranking = index + 1;
     });
@@ -84,5 +75,76 @@ export class RankingsService {
     Promise.all(
       listRankings.map((ranking) => this.rankingsRepository.save(ranking)),
     );
+  }
+
+  async getLeakedRankings(
+    tournament_id: UUID,
+    filterforRanking: IRankingfilter,
+  ): Promise<object | null> {
+    try {
+      const { gte_score, lte_score, page } = filterforRanking;
+      const take = 3;
+      const skip = page ? (page - 1) * take : 0;
+
+      const whereConditions: any = { tournament_id };
+
+      if (gte_score && lte_score) {
+        if (gte_score > lte_score) {
+          console.log(gte_score, lte_score);
+          console.warn(gte_score < lte_score);
+          throw new ErrorManager({
+            type: 'CONFLICT',
+            message:
+              'Invalid range: The lower limit cannot be greater than the upper limit',
+          });
+        }
+        whereConditions.points = Between(gte_score, lte_score);
+      }
+
+      if (gte_score && !lte_score) {
+        whereConditions.points = MoreThanOrEqual(gte_score);
+      }
+
+      if (!gte_score && lte_score) {
+        whereConditions.points = LessThanOrEqual(lte_score);
+      }
+
+      const [items, total] = await this.rankingsRepository.findAndCount({
+        where: whereConditions,
+        skip,
+        take,
+        order: {
+          ranking: 'ASC',
+        },
+      });
+
+      if (!items.length) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message:
+            'There are not rankins in the database with parameters provided',
+        });
+      }
+
+      const last_page = Math.ceil(total / take);
+
+      if (page > last_page) {
+        throw new ErrorManager({
+          type: 'CONFLICT',
+          message: `Page out of range: requested page ${page}, Total rankings: ${total} , last page ${last_page}. Select a page in range of results`,
+        });
+      }
+
+      return {
+        ranking: items,
+        total,
+        pages: page ? page : 1,
+        last_page: last_page,
+      };
+    } catch (error) {
+      throw error instanceof Error
+        ? ErrorManager.createSignatureError(error.message)
+        : ErrorManager.createSignatureError('An unexpected error occurred');
+    }
   }
 }
